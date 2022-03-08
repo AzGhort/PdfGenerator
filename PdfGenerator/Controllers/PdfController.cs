@@ -14,6 +14,7 @@ namespace PdfGenerator.Controllers;
 [ApiController]
 public class PdfController : ControllerBase
 {
+    private const string ExampleHtmlRoute = "example/html";
     private readonly GotenbergSharpClient fClient;
 
     public PdfController(IOptions<PdfOptions> pdfOptions)
@@ -47,7 +48,7 @@ public class PdfController : ControllerBase
 
         var stream = await fClient.HtmlToPdfAsync(request, cancellationToken);
 
-        return new StreamActionResult(stream, MediaTypeNames.Application.Octet, pdfTemplate.Name ?? $"{Guid.NewGuid()}.pdf");
+        return new StreamActionResult(stream, MediaTypeNames.Application.Octet, $"{Guid.NewGuid()}.pdf");
     }
 
     [HttpPost("url")]
@@ -65,6 +66,18 @@ public class PdfController : ControllerBase
 
         var stream = await fClient.UrlToPdfAsync(request, cancellationToken);
 
-        return new StreamActionResult(stream, MediaTypeNames.Application.Octet, pdfTemplate.Name ?? $"{Guid.NewGuid()}.pdf");
+        return new StreamActionResult(stream, MediaTypeNames.Application.Octet, $"{Guid.NewGuid()}.pdf");
+    }
+
+    [HttpGet(ExampleHtmlRoute)]
+    public async Task<IActionResult> GetExampleHtml(CancellationToken cancellationToken)
+    {
+        return Content(Examples.ExampleContent, MediaTypeNames.Text.Html);
+    }
+
+    [HttpGet("example/pdf")]
+    public async Task<IActionResult> GetExamplePdf(CancellationToken cancellationToken)
+    {
+        return await PostFromUrl(new PdfUrlRequest { Url = $"http://host.docker.internal:8085/api/v1/pdf/{ExampleHtmlRoute}" }, cancellationToken);
     }
 }
