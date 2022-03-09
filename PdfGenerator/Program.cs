@@ -40,6 +40,8 @@ app.UseCors(o => o
     .AllowAnyMethod()
     .AllowAnyOrigin());
 
+app.UseHttpsRedirection();
+
 app.UseSwagger(o => o.RouteTemplate = "/docs/{documentName}/swagger.json");
 
 app.UseEndpoints(endpoints =>
